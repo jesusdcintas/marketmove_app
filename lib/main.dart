@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/features/auth/presentation/home_page.dart';
 import 'src/features/auth/presentation/login_page.dart';
+import 'src/features/productos/presentation/productos_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +40,7 @@ class MarketMoveApp extends StatelessWidget {
       routes: {
         '/login': (_) => const LoginPage(),
         '/home': (_) => const HomePage(),
+        '/productos': (_) => const ProductosPage(),
       },
     );
   }
