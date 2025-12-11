@@ -18,19 +18,25 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Bienvenido al panel principal', style: TextStyle(fontSize: 18)),
+            const Text('Bienvenido al panel principal', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => Navigator.pushNamed(context, '/productos'),
-              icon: const Icon(Icons.inventory_2),
-              label: const Text('Productos'),
+              icon: const Icon(Icons.inventory_2_outlined),
+              label: const Text('Gestionar productos'),
             ),
             const SizedBox(height: 12),
-            const Text('Próximamente: añade ventas, gastos y resumen desde este panel.'),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pushNamed(context, '/ventas'),
+              icon: const Icon(Icons.shopping_bag_outlined),
+              label: const Text('Registrar ventas'),
+            ),
+            const SizedBox(height: 12),
+            const Text('Selecciona una sección para abrir su panel correspondiente.', style: TextStyle(color: Colors.black54)),
           ],
         ),
       ),
