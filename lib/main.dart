@@ -6,6 +6,7 @@ import 'src/features/auth/presentation/home_page.dart';
 import 'src/features/auth/presentation/login_page.dart';
 import 'src/features/gastos/presentation/gastos_page.dart';
 import 'src/features/productos/presentation/productos_page.dart';
+import 'src/features/resumen/presentation/resumen_page.dart';
 import 'src/features/ventas/presentation/ventas_page.dart';
 
 Future<void> main() async {
@@ -45,6 +46,7 @@ class MarketMoveApp extends StatelessWidget {
         '/productos': (_) => const ProductosPage(),
         '/ventas': (_) => const VentasPage(),
         '/gastos': (_) => const GastosPage(),
+        '/resumen': (_) => const ResumenPage(),
       },
     );
   }
