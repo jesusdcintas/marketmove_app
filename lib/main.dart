@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/features/auth/presentation/home_page.dart';
 import 'src/features/auth/presentation/login_page.dart';
+import 'src/features/gastos/presentation/gastos_page.dart';
 import 'src/features/productos/presentation/productos_page.dart';
 import 'src/features/ventas/presentation/ventas_page.dart';
 
@@ -43,6 +44,7 @@ class MarketMoveApp extends StatelessWidget {
         '/home': (_) => const HomePage(),
         '/productos': (_) => const ProductosPage(),
         '/ventas': (_) => const VentasPage(),
+        '/gastos': (_) => const GastosPage(),
       },
     );
   }
