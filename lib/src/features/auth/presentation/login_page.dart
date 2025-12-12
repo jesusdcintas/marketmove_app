@@ -29,9 +29,13 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (response.user == null || Supabase.instance.client.auth.currentUser == null) {
+      
+      final currentUser = Supabase.instance.client.auth.currentUser;
+      if (response.user == null || currentUser == null || currentUser.id.isEmpty) {
         throw AuthException('No se pudo iniciar sesión. Revisa el correo y la contraseña.');
       }
+      
+      debugPrint('Usuario iniciado sesión: ${currentUser.id}');
       _navigateToHome();
     });
   }

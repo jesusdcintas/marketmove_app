@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../shared/models/producto.dart';
 import '../../../shared/services/productos_service.dart';
@@ -87,25 +88,33 @@ class _ProductosPageState extends State<ProductosPage> {
                 final nombre = nombreController.text.trim();
                 final precio = double.tryParse(precioController.text.trim()) ?? 0;
                 final stock = int.tryParse(stockController.text.trim()) ?? 0;
+                final currentUser = Supabase.instance.client.auth.currentUser;
 
-                  try {
-                    if (producto != null) {
-                      final existing = producto;
-                      await _service.update(
-                        Producto(
-                          id: existing.id,
-                          userId: existing.userId,
-                          nombre: nombre,
-                          precio: precio,
-                          stock: stock,
-                          createdAt: existing.createdAt,
-                        ),
-                      );
-                    } else {
+                if (currentUser == null || currentUser.id.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Debes iniciar sesión antes de registrar un producto.')),
+                  );
+                  return;
+                }
+
+                try {
+                  debugPrint('usuario actual antes de guardar producto: ${currentUser.id}');
+                  if (producto != null) {
+                    await _service.update(
+                      Producto(
+                        id: producto.id,
+                        userId: currentUser.id,
+                        nombre: nombre,
+                        precio: precio,
+                        stock: stock,
+                        createdAt: producto.createdAt,
+                      ),
+                    );
+                  } else {
                     await _service.insert(
                       Producto(
                         id: '',
-                        userId: '',
+                        userId: currentUser.id,
                         nombre: nombre,
                         precio: precio,
                         stock: stock,

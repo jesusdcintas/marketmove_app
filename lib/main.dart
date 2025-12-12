@@ -13,8 +13,8 @@ import 'src/features/resumen/presentation/resumen_page.dart';
 import 'src/features/ventas/presentation/ventas_page.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
     final startupInfo = await _prepareAppStartup();
     runApp(MarketMoveApp(startupResult: startupInfo));
   }, (error, stack) {

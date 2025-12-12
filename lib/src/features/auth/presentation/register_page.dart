@@ -25,22 +25,31 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
     await _runWithFeedback(() async {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      
       final response = await Supabase.instance.client.auth.signUp(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: email,
+        password: password,
       );
+      
       if (response.user == null) {
         throw AuthException('No se pudo crear la cuenta. Intenta de nuevo.');
       }
-      if (Supabase.instance.client.auth.currentUser == null) {
-        final signInResponse = await Supabase.instance.client.auth.signInWithPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-        if (signInResponse.user == null) {
-          throw AuthException('No se pudo iniciar sesión después de registrarte.');
-        }
+      
+      // Always ensure session is established by signing in
+      await Supabase.instance.client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      
+      // Verify session exists before navigating
+      final currentUser = Supabase.instance.client.auth.currentUser;
+      if (currentUser == null || currentUser.id.isEmpty) {
+        throw AuthException('No se pudo iniciar sesión después de registrarte.');
       }
+      
+      debugPrint('Usuario registrado e iniciado sesión: ${currentUser.id}');
       _navigateToHome();
     });
   }

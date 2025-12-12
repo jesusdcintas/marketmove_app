@@ -30,9 +30,10 @@ class VentasService {
 
   Future<void> insert(Venta venta) async {
     _ensureAuthenticated();
-    final payload = venta.toMap()
-      ..['user_id'] = _currentUserId
-      ..['created_at'] = DateTime.now().toIso8601String();
+    final payload = venta.toMap();
+    payload.remove('id'); // Let Supabase generate the ID
+    payload['user_id'] = _currentUserId;
+    payload['created_at'] = DateTime.now().toIso8601String();
 
     await _client.from('ventas').insert(payload);
   }

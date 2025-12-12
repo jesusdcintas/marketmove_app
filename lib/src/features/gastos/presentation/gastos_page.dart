@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../shared/models/gasto.dart';
 import '../../../shared/services/gastos_service.dart';
@@ -46,6 +47,14 @@ class _GastosPageState extends State<GastosPage> {
   Future<void> _submitGasto() async {
     final descripcion = _descripcionController.text.trim();
     final monto = double.tryParse(_montoController.text.trim()) ?? 0;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
+    if (userId == null || userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes iniciar sesión antes de registrar un gasto.')), 
+      );
+      return;
+    }
 
     if (descripcion.isEmpty || monto <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,9 +63,10 @@ class _GastosPageState extends State<GastosPage> {
       return;
     }
 
+    debugPrint('usuario actual antes de guardar gasto: $userId');
     final gasto = Gasto(
       id: '',
-      userId: '',
+      userId: userId,
       descripcion: descripcion,
       cantidad: monto,
     );
