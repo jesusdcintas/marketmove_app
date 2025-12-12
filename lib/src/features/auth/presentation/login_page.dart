@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:marketmove_app/core/constants/routes.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -73,7 +75,9 @@ class _LoginPageState extends State<LoginPage> {
 
   void _navigateToHome() {
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/home');
+    // go_router maneja la redirección automáticamente basada en el rol
+    // Solo necesitamos forzar un refresh del estado de auth
+    context.go(AppRoutes.login);
   }
 
   @override
@@ -143,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/register'),
+              onPressed: () => context.go(AppRoutes.register),
               child: const Text('Crear cuenta'),
             ),
             const SizedBox(height: 8),

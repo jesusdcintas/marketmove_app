@@ -2,21 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'src/features/auth/presentation/home_page.dart';
-import 'src/features/auth/presentation/login_page.dart';
-import 'src/features/auth/presentation/register_page.dart';
-import 'src/features/gastos/presentation/gastos_page.dart';
-import 'src/features/productos/presentation/productos_page.dart';
-import 'src/features/resumen/presentation/resumen_page.dart';
-import 'src/features/ventas/presentation/ventas_page.dart';
+import 'routes/app_router.dart';
 
 Future<void> main() async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     final startupInfo = await _prepareAppStartup();
-    runApp(MarketMoveApp(startupResult: startupInfo));
+    runApp(ProviderScope(child: MarketMoveApp(startupResult: startupInfo)));
   }, (error, stack) {
     debugPrint('Unhandled startup error: $error');
     debugPrintStack(stackTrace: stack);
@@ -53,32 +48,28 @@ Future<AppStartupStatus> _prepareAppStartup() async {
   return const AppStartupStatus.success();
 }
 
-class MarketMoveApp extends StatelessWidget {
+class MarketMoveApp extends ConsumerWidget {
   const MarketMoveApp({super.key, required this.startupResult});
 
   final AppStartupStatus startupResult;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'MarketMove',
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!startupResult.success) {
+      return MaterialApp(
+        home: StartupErrorScreen(startupResult.message),
+      );
+    }
+
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
+      title: 'MarketMove CRM',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
         brightness: Brightness.light,
       ),
-      home: startupResult.success
-          ? const LoginPage()
-          : StartupErrorScreen(startupResult.message),
-      initialRoute: startupResult.success ? '/login' : null,
-      routes: {
-        '/login': (_) => const LoginPage(),
-        '/register': (_) => const RegisterPage(),
-        '/home': (_) => const HomePage(),
-        '/productos': (_) => const ProductosPage(),
-        '/ventas': (_) => const VentasPage(),
-        '/gastos': (_) => const GastosPage(),
-        '/resumen': (_) => const ResumenPage(),
-      },
+      routerConfig: router,
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:marketmove_app/core/constants/routes.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -28,29 +30,38 @@ class _RegisterPageState extends State<RegisterPage> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
       
+      debugPrint('Intentando registrar usuario: $email');
+      
       final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
+        emailRedirectTo: null, // No redirección necesaria para apps móviles
       );
+      
+      debugPrint('Respuesta de signUp: user=${response.user?.id}, session=${response.session != null}');
       
       if (response.user == null) {
         throw AuthException('No se pudo crear la cuenta. Intenta de nuevo.');
       }
       
-      // Always ensure session is established by signing in
-      await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-      
-      // Verify session exists before navigating
-      final currentUser = Supabase.instance.client.auth.currentUser;
-      if (currentUser == null || currentUser.id.isEmpty) {
-        throw AuthException('No se pudo iniciar sesión después de registrarte.');
+      // Si ya hay sesión activa (confirmación de email desactivada), navegar directamente
+      if (response.session != null) {
+        debugPrint('Usuario registrado con sesión activa: ${response.user!.id}');
+        _navigateToHome();
+        return;
       }
       
-      debugPrint('Usuario registrado e iniciado sesión: ${currentUser.id}');
-      _navigateToHome();
+      // Si no hay sesión, significa que requiere confirmación de email
+      debugPrint('Registro exitoso. Se requiere confirmación de email.');
+      setState(() {
+        _feedbackMessage = 'Cuenta creada. Por favor, confirma tu email para iniciar sesión.';
+      });
+      
+      // Esperar 2 segundos y volver al login
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        _goToLogin();
+      }
     });
   }
 
@@ -75,11 +86,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _navigateToHome() {
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/home');
+    // go_router maneja la redirección automáticamente
+    context.go(AppRoutes.login);
   }
 
   void _goToLogin() {
-    Navigator.pushReplacementNamed(context, '/login');
+    context.go(AppRoutes.login);
   }
 
   @override
