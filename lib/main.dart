@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/features/auth/presentation/home_page.dart';
 import 'src/features/auth/presentation/login_page.dart';
+import 'src/features/auth/presentation/register_page.dart';
 import 'src/features/gastos/presentation/gastos_page.dart';
 import 'src/features/productos/presentation/productos_page.dart';
 import 'src/features/resumen/presentation/resumen_page.dart';
@@ -71,6 +72,7 @@ class MarketMoveApp extends StatelessWidget {
       initialRoute: startupResult.success ? '/login' : null,
       routes: {
         '/login': (_) => const LoginPage(),
+        '/register': (_) => const RegisterPage(),
         '/home': (_) => const HomePage(),
         '/productos': (_) => const ProductosPage(),
         '/ventas': (_) => const VentasPage(),

@@ -53,7 +53,7 @@ class _VentasPageState extends State<VentasPage> {
 
   double get _calculatedTotal {
     final cantidad = int.tryParse(_cantidadController.text.trim()) ?? 0;
-    return (_selectedProducto?.precioUnitario ?? 0) * cantidad;
+    return (_selectedProducto?.precio ?? 0) * cantidad;
   }
 
   Future<void> _showNuevaVentaForm() async {
@@ -123,11 +123,10 @@ class _VentasPageState extends State<VentasPage> {
 
                 final venta = Venta(
                   id: '',
+                  userId: '',
                   productoId: _selectedProducto!.id,
-                  cantidad: cantidad,
+                  unidades: cantidad,
                   total: _calculatedTotal,
-                  cliente: 'Cliente API',
-                  notas: 'Registrado manualmente',
                 );
 
                 try {
@@ -175,16 +174,16 @@ class _VentasPageState extends State<VentasPage> {
                       (item) => item.id == venta.productoId,
                       orElse: () => Producto(
                         id: venta.productoId,
+                        userId: '',
                         nombre: 'Producto desconocido',
-                        descripcion: '',
-                        precioUnitario: 0,
+                        precio: 0,
                         stock: 0,
                       ),
                     );
 
                     return ListTile(
                       title: Text(producto.nombre),
-                      subtitle: Text('Cantidad: ${venta.cantidad} · Total: ${venta.total.toStringAsFixed(2)} €'),
+                      subtitle: Text('Cantidad: ${venta.unidades} · Total: ${venta.total.toStringAsFixed(2)} €'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_forever),
                         onPressed: () => _deleteVenta(venta.id),

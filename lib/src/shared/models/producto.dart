@@ -1,41 +1,55 @@
 class Producto {
   final String id;
+  final String userId;
   final String nombre;
-  final String descripcion;
-  final double precioUnitario;
+  final double precio;
   final int stock;
-  final DateTime? creado;
+  final DateTime? createdAt;
 
-  Producto({
+  const Producto({
     required this.id,
+    required this.userId,
     required this.nombre,
-    required this.descripcion,
-    required this.precioUnitario,
+    required this.precio,
     required this.stock,
-    this.creado,
+    this.createdAt,
   });
 
   factory Producto.fromMap(Map<String, dynamic> map) {
     return Producto(
       id: map['id']?.toString() ?? '',
+      userId: map['user_id']?.toString() ?? '',
       nombre: map['nombre'] ?? '',
-      descripcion: map['descripcion'] ?? '',
-      precioUnitario: (map['precio_unitario'] ?? map['precio'] ?? 0).toDouble(),
-      stock: (map['stock'] ?? map['cantidad'] ?? 0).toInt(),
-      creado: _parseDateTime(map['created_at'] ?? map['creado']),
+      precio: _toDouble(map['precio']),
+      stock: _toInt(map['stock']),
+      createdAt: _parseDateTime(map['created_at']),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'user_id': userId,
       'nombre': nombre,
-      'descripcion': descripcion,
-      'precio_unitario': precioUnitario,
+      'precio': precio,
       'stock': stock,
-      'created_at': creado?.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
     };
   }
+}
+
+double _toDouble(dynamic value) {
+  if (value == null) return 0; 
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  return double.tryParse(value.toString()) ?? 0;
+}
+
+int _toInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  return int.tryParse(value.toString()) ?? 0;
 }
 
 DateTime? _parseDateTime(dynamic value) {

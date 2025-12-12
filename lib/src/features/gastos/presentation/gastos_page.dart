@@ -56,9 +56,9 @@ class _GastosPageState extends State<GastosPage> {
 
     final gasto = Gasto(
       id: '',
+      userId: '',
       descripcion: descripcion,
-      monto: monto,
-      categoria: 'General',
+      cantidad: monto,
     );
 
     try {
@@ -128,7 +128,7 @@ class _GastosPageState extends State<GastosPage> {
                             final gasto = _gastos[index];
                             return ListTile(
                               title: Text(gasto.descripcion),
-                              subtitle: Text('Monto: ${gasto.monto.toStringAsFixed(2)} €'),
+                              subtitle: Text('Monto: ${gasto.cantidad.toStringAsFixed(2)} €'),
                               trailing: IconButton(
                                 icon: const Icon(Icons.delete),
                                 onPressed: () => _deleteGasto(gasto.id),

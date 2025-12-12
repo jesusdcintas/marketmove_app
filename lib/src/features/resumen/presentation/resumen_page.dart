@@ -28,7 +28,7 @@ class _ResumenPageState extends State<ResumenPage> {
       final ventas = await _ventasService.getAll();
       final gastos = await _gastosService.getAll();
       _totalVentas = ventas.fold(0, (sum, item) => sum + item.total);
-      _totalGastos = gastos.fold(0, (sum, item) => sum + item.monto);
+      _totalGastos = gastos.fold(0, (sum, item) => sum + item.cantidad);
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error cargando resumen: $error')),

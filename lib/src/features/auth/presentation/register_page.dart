@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -22,29 +22,26 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> _handleSignIn() async {
+  Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
     await _runWithFeedback(() async {
-      final response = await Supabase.instance.client.auth.signInWithPassword(
+      final response = await Supabase.instance.client.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (response.user == null || Supabase.instance.client.auth.currentUser == null) {
-        throw AuthException('No se pudo iniciar sesión. Revisa el correo y la contraseña.');
+      if (response.user == null) {
+        throw AuthException('No se pudo crear la cuenta. Intenta de nuevo.');
+      }
+      if (Supabase.instance.client.auth.currentUser == null) {
+        final signInResponse = await Supabase.instance.client.auth.signInWithPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+        if (signInResponse.user == null) {
+          throw AuthException('No se pudo iniciar sesión después de registrarte.');
+        }
       }
       _navigateToHome();
-    });
-  }
-
-  Future<void> _handlePasswordRecovery() async {
-    final email = _emailController.text.trim().toLowerCase();
-    if (email.isEmpty) {
-      setState(() => _feedbackMessage = 'Ingresa el correo asociado a tu cuenta.');
-      return;
-    }
-    await _runWithFeedback(() async {
-      await Supabase.instance.client.auth.resetPasswordForEmail(email);
-      _feedbackMessage = 'Te enviamos un enlace para restablecer la contraseña.';
     });
   }
 
@@ -72,10 +69,14 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.pushReplacementNamed(context, '/home');
   }
 
+  void _goToLogin() {
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Iniciar sesión')),
+      appBar: AppBar(title: const Text('Crear cuenta')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
@@ -90,14 +91,8 @@ class _LoginPageState extends State<LoginPage> {
                   TextFormField(
                     controller: _emailController,
                     enabled: !_working,
-                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(labelText: 'Correo electrónico'),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'El email es obligatorio.';
-                      }
-                      return null;
-                    },
+                    validator: (value) => (value == null || value.trim().isEmpty) ? 'El email es obligatorio.' : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -132,20 +127,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ElevatedButton(
-              onPressed: _working ? null : _handleSignIn,
+              onPressed: _working ? null : _handleRegister,
               child: _working
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Iniciar sesión'),
+                  : const Text('Crear cuenta'),
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/register'),
-              child: const Text('Crear cuenta'),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: _working ? null : _handlePasswordRecovery,
-              child: const Text('¿Olvidaste tu contraseña?'),
+              onPressed: _working ? null : _goToLogin,
+              child: const Text('Ya tengo cuenta'),
             ),
           ],
         ),

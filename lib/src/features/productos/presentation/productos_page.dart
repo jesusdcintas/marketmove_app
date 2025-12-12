@@ -38,9 +38,9 @@ class _ProductosPageState extends State<ProductosPage> {
   Future<void> _showProductoForm({Producto? producto}) async {
     final nombreController = TextEditingController(text: producto?.nombre);
     final precioController = TextEditingController(
-      text: producto?.precioUnitario.toStringAsFixed(2),
+      text: producto != null ? producto.precio.toStringAsFixed(2) : '',
     );
-    final stockController = TextEditingController(text: producto?.stock.toString());
+    final stockController = TextEditingController(text: producto?.stock.toString() ?? '0');
 
     final isEditing = producto != null;
     final formKey = GlobalKey<FormState>();
@@ -49,9 +49,9 @@ class _ProductosPageState extends State<ProductosPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-            title: Text(isEditing ? 'Editar producto' : 'Nuevo producto'),
-            content: Form(
-              key: formKey,
+          title: Text(isEditing ? 'Editar producto' : 'Nuevo producto'),
+          content: Form(
+            key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -88,25 +88,26 @@ class _ProductosPageState extends State<ProductosPage> {
                 final precio = double.tryParse(precioController.text.trim()) ?? 0;
                 final stock = int.tryParse(stockController.text.trim()) ?? 0;
 
-                try {
-                  if (isEditing) {
-                    await _service.update(
-                      Producto(
-                        id: producto.id,
-                        nombre: nombre,
-                        descripcion: producto.descripcion,
-                        precioUnitario: precio,
-                        stock: stock,
-                        creado: producto.creado,
-                      ),
-                    );
-                  } else {
+                  try {
+                    if (producto != null) {
+                      final existing = producto;
+                      await _service.update(
+                        Producto(
+                          id: existing.id,
+                          userId: existing.userId,
+                          nombre: nombre,
+                          precio: precio,
+                          stock: stock,
+                          createdAt: existing.createdAt,
+                        ),
+                      );
+                    } else {
                     await _service.insert(
                       Producto(
                         id: '',
+                        userId: '',
                         nombre: nombre,
-                        descripcion: '',
-                        precioUnitario: precio,
+                        precio: precio,
                         stock: stock,
                       ),
                     );
@@ -153,7 +154,7 @@ class _ProductosPageState extends State<ProductosPage> {
                     final producto = _productos[index];
                     return ListTile(
                       title: Text(producto.nombre),
-                      subtitle: Text('Precio: ${producto.precioUnitario.toStringAsFixed(2)} · Stock: ${producto.stock}'),
+                      subtitle: Text('Precio: ${producto.precio.toStringAsFixed(2)} · Stock: ${producto.stock}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

@@ -7,14 +7,21 @@ class GastosService {
 
   GastosService() : _client = Supabase.instance.client;
 
+  String get _currentUserId => _client.auth.currentUser?.id ?? '';
+  void _ensureAuthenticated() {
+    if (_currentUserId.isEmpty) {
+      throw StateError('No hay una sesión activa para registrar gastos.');
+    }
+  }
+
   Future<List<Gasto>> getAll() async {
-    final response = await _client
+    final result = await _client
         .from('gastos')
         .select()
-        .order('fecha', ascending: false)
-        .execute();
+        .eq('user_id', _currentUserId)
+        .order('fecha', ascending: false);
 
-    final data = response.data as List<dynamic>?;
+    final data = result as List<dynamic>?;
     return data
             ?.map((item) => Gasto.fromMap(item as Map<String, dynamic>))
             .toList() ??
@@ -22,18 +29,30 @@ class GastosService {
   }
 
   Future<void> insert(Gasto gasto) async {
-    await _client.from('gastos').insert(gasto.toMap()).execute();
+    _ensureAuthenticated();
+    final payload = gasto.toMap()
+      ..['user_id'] = _currentUserId
+      ..['created_at'] = DateTime.now().toIso8601String();
+
+    await _client.from('gastos').insert(payload);
   }
 
   Future<void> update(Gasto gasto) async {
+    final payload = gasto.toMap()
+      ..['user_id'] = _currentUserId;
+
     await _client
         .from('gastos')
-        .update(gasto.toMap())
+        .update(payload)
         .eq('id', gasto.id)
-        .execute();
+        .eq('user_id', _currentUserId);
   }
 
   Future<void> delete(String id) async {
-    await _client.from('gastos').delete().eq('id', id).execute();
+    await _client
+        .from('gastos')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', _currentUserId);
   }
 }
